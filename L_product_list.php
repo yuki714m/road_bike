@@ -233,8 +233,12 @@ function h($str){
         
         <script>
             $(document).ready(function(){
-            $('.slider').bxSlider();
-        });
+                var options = {
+                    auto: true,
+                    pause: 4000
+                };
+                $('.slider').bxSlider(options);
+            });
         </script>
         <!--ここまでジャバスクリプトデザイン-->
         
