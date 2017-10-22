@@ -236,9 +236,9 @@ function h($str){
                 var options = {
                     auto: true,
                     pause: 4000
-                };
-                $('.slider').bxSlider(options);
-            });
+                }
+            $('.slider').bxSlider(options);
+        });
         </script>
         <!--ここまでジャバスクリプトデザイン-->
         
@@ -356,6 +356,9 @@ function h($str){
             <p>ブランド：<?php print h($value['brand']); ?></p>
             <p>金額：<?php print h($value['price']); ?></p>
             <p>使用キャラ：<?php print h($value['chara']); ?></p>
+            <?php if($value['stock'] === '0') { ?>
+                <span class="red"><p>在庫状況：売り切れ</p></span>
+            <?php } ?>
             <form method="post" action="L_product_details.php">
                 <input type="hidden" name="bike_id" value="<?php print h($value['bike_id']); ?>">
                 <input type="submit" name="detail" value="商品詳細ページ">

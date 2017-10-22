@@ -27,6 +27,7 @@ h3{
 li{
 	list-style-type: none;
 }
+/*ここからヘッダー*/
 .top_zero{
     float: left;
     margin-left: 40px;
@@ -50,6 +51,8 @@ li{
 .clear{
     clear: both;
 }
+
+/*ここからnav*/
 .left{
     border: ridge 5px;
     margin: 0px 10px 10px 10px;
@@ -75,6 +78,7 @@ li{
     margin-right: 20px;
     border-radius: 10px;
 }
+/*ここからarticl*/
 .one{
     width: 620px;
     display: flex;
@@ -106,15 +110,7 @@ li{
 
 
 
-
-
-
-
-
-
-
-
-
+/*ここからフッター*/
 footer{
 	border-top: solid 1px;
 	background-color: #FFFFFF;

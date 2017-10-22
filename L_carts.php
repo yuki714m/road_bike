@@ -212,6 +212,7 @@ function h($str){
         
         <input class="top_two" type="button" onclick="location.href='L_logout.php'" value="ログアウト">
         <input class="top_three" type="button" onclick="location.href='L_product_list.php'" value="トップページ">
+        <input class="top_four" type="button" onclick="location.href='L_histry.php'" value="お買上げ履歴">
         </div>
         <div class="clear"></div>
     </header>
@@ -273,13 +274,13 @@ function h($str){
             </div>
             <?php $total_purchase += ($value['price'] * $value['amount']); ?>
         <?php } ?>    
-        
-        <form method="post" action="L_purchase.php">
-        <p>合計金額：<?php print h($total_purchase); ?>円</P>
-            <input type="hidden" name="total" value="<?php print h($total_purchase); ?>">
-            <input type="submit" name="purchase" value="お会計">
-        </form>
-        
+        <?php if(isset($value) === TRUE) { ?>
+            <form method="post" action="L_purchase.php">
+            <p>合計金額：<?php print h($total_purchase); ?>円</P>
+                <input type="hidden" name="total" value="<?php print h($total_purchase); ?>">
+                <input type="submit" name="purchase" value="お会計">
+            </form>
+        <?php } ?>
     </article>
     </main>
     

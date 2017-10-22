@@ -61,7 +61,8 @@ try {
             img,
             brand,
             chara,
-            country
+            country,
+            stock
         FROM bike_item
         WHERE bike_id = ?";
         $stmt = $dbh->prepare($sql);
@@ -157,10 +158,17 @@ function h($str){
                     <p>金額：<?php print h($value['price']); ?></p>
                     <p>使用キャラ：<?php print h($value['chara']); ?></p>
                     <p>生産国：<?php print h($value['country']); ?></p>
-                    <form method="post" action="L_carts.php">
-                        <input type="hidden" name="bike_id" value="<?php print h($value['bike_id']); ?>">
-                        <input type="submit" name="carts" value="カートに入れる">
-                    </form>    
+                    
+                    <p>在庫状況：<?php if($value['stock'] === '0') { ?>
+                        <span class="red">売り切れ</span>
+                    <?php } else { ?>
+                        <form method="post" action="L_carts.php">
+                            <input type="hidden" name="bike_id" value="<?php print h($value['bike_id']); ?>">
+                            <input type="submit" name="carts" value="カートに入れる">
+                        </form>    
+                    <?php } ?>
+                    </p>
+
                     </div>
                 </div>
             <?php } ?>

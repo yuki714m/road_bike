@@ -23,6 +23,8 @@ $chara = '';
 $change_status = '';
 $status = '';
 $country = '';
+$change_bike_name = '';
+$change_price = '';
 $brand_array = array(
     '台湾' => array('GIANT', 'MERIDA'),
     '北米' => array('TREK', 'Cannondale', 'Specialized', 'Cervélo', 'Argon18'),
@@ -34,7 +36,6 @@ $brand_array = array(
     'スペイン' => array('BH', 'ORBEA'),
     '日本' => array('ANCHOR')
     );
-
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -199,6 +200,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $err_msg[] = 'ファイルを選択してください';
         }
         
+        
+    }else if($kind ==='モデル名変更'){
+        if(isset($_POST['change_bike_name']) === TRUE){
+            $change_bike_name =  trim(mb_convert_kana($_POST['change_bike_name'], "s", 'utf-8'));
+        }
+        if ($change_bike_name === ''){
+            $err_msg[] = ': 商品名が空です。入力して下さい。';
+        }
+        if(isset($_POST['bike_id']) === TRUE){
+            $bike_id = trim($_POST['bike_id']);
+        }
+        if($bike_id === ''){
+            $err_msg[] = 'idが選択されていません。';
+        }
+    
+    
+    }else if($kind ==='価格変更'){
+        if(isset($_POST['change_price']) === TRUE){
+            $change_price =  trim($_POST['change_price']);
+        }
+        if ($change_price === ''){
+            $err_msg[] = ':金額が空です。入力して下さい。';
+        }
+        $pattern = "/^[1-9][0-9]*$/";  //正の整数のみ
+        //$pattern = "/^(0|[1-9][0-9]*)$/";　０と正の整数
+        if (preg_match($pattern, $change_price) !== 1) {
+            $err_msg[] = $price . ' : 金額は半角で1円以上で入力して下さい。';
+        }
+        if(isset($_POST['bike_id']) === TRUE){
+            $bike_id = trim($_POST['bike_id']);
+        }
+        if($bike_id === ''){
+            $err_msg[] = 'idが選択されていません。';
+        }
+        
+        
     }else if($kind ==='在庫数変更'){
         if (isset($_POST['change_stock'])){
             $change_stock = trim($_POST['change_stock']);
@@ -216,6 +253,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if($bike_id === ''){
             $err_msg[] = 'idが選択されていません。';
         }
+        
+        
     }else if($kind ==="表示変更"){
         if(isset($_POST['bike_id']) === TRUE){
             $bike_id = trim($_POST['bike_id']);
@@ -229,8 +268,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if($change_status === ''){
             $err_msg[] = '公開状態が間違っています。';
         }
-        print $change_status;
     }
+    
+    
     else if($kind ==="削除"){
         if(isset($_POST['bike_id']) === TRUE){
             $bike_id = trim($_POST['bike_id']);
@@ -282,6 +322,32 @@ try {
             }else{
                 $err_msg[] = 'データ追加失敗';
             }
+            
+            
+        }else if($kind === 'モデル名変更'){
+            $sql = 'UPDATE
+                bike_item
+            SET bike_name = ?
+            WHERE bike_id = ?';
+            $stmt = $dbh->prepare($sql);
+            $stmt->bindValue(1, $change_bike_name,PDO::PARAM_STR);
+            $stmt->bindValue(2, $bike_id,PDO::PARAM_INT);
+            $stmt->execute();
+            $msg[] = 'モデル名更新完了';
+
+
+        }else if($kind === '価格変更'){
+            $sql = 'UPDATE
+                bike_item
+            SET price = ?
+            WHERE bike_id = ?';
+            $stmt = $dbh->prepare($sql);
+            $stmt->bindValue(1, $change_price,PDO::PARAM_INT);
+            $stmt->bindValue(2, $bike_id,PDO::PARAM_INT);
+            $stmt->execute();
+            $msg[] = '金額更新完了';            
+            
+            
         }else if($kind === '在庫数変更'){
             $sql = 'UPDATE
                 bike_item
@@ -293,8 +359,8 @@ try {
             $stmt->execute();
             $msg[] = '在庫数更新完了';
             
+            
         }else if($kind === '表示変更') {
-            print $change_status;
             $sql = 'UPDATE
                 bike_item
             SET status = ?
@@ -304,6 +370,7 @@ try {
             $stmt->bindValue(2, $bike_id,PDO::PARAM_INT);
             $stmt->execute();
             $msg[] = 'ステータス変更';
+            
             
         }else if($kind === '削除') {
             $sql = 'DELETE FROM
@@ -315,6 +382,7 @@ try {
             $msg[] = '削除完了';
         }    
     }        
+    
     try {
         $sql = 'SELECT
             bike_id,
@@ -414,15 +482,30 @@ function h($str){
     <th>画像</th><th>商品名</th><th>値段</th><th>在庫数</th><th>ステータス</th><th>ブランド名</th><th>生産国</th><th>キャラクター</th><th>操作</th>
     </tr>
     <?php foreach ($data as $value)  { ?>
-        <?php if($value['status'] === '0'){ ?>
-            <tr class="white">
-        <?php }else { ?>
-            <tr class="gray">
-        <?php } ?>
+    <?php if($value['status'] === 0){ ?>
+    <tr class="white">
+    <?php }else { ?>
+    <tr class="gray">
+    <?php } ?>
      
         <td><img src="<?php print h($img_dir . $value['img']); ?>" width="200" height="200"></td>
-        <td><?php print h($value['bike_name']); ?></td>
-        <td><?php print h($value['price']); ?></td>
+        <td>
+            <form method="post">
+            <input type="text" name="change_bike_name" value="<?php print h($value['bike_name']); ?>">
+            <input type="hidden" name="bike_id" value="<?php print h($value['bike_id']); ?>">
+            <input type="submit" name="kind" value="モデル名変更">
+           </form>
+        </td>
+        
+        
+        <td>
+            <form method="post">
+            <input type="text" name="change_price" value="<?php print h($value['price']); ?>" size="8px">
+            <input type="hidden" name="bike_id" value="<?php print h($value['bike_id']); ?>">
+            <input type="submit" name="kind" value="価格変更">
+           </form>
+        </td>
+        
         <td>
             <form method="post">
                 <input type="text" name="change_stock" value="<?php print h($value['stock']); ?>" size="1">
@@ -434,7 +517,7 @@ function h($str){
             <form method="post">
                 <input type="hidden" name="bike_id" value="<?php print h($value['bike_id']); ?>">
                 <input type="hidden" name="kind" value="表示変更">
-                <?php if($value['status'] === '0'){ ?>
+                <?php if($value['status'] === 0){ ?>
                     <input type='hidden' name='change_status' value="1">
                     <input type='submit' value="公開→非公開">
                 <?php }else { ?>
@@ -452,7 +535,7 @@ function h($str){
                 <input type="submit" name="kind" value="削除">
             </form>
         </td>
-        </tr>
+    </tr>
     <?php } ?>
     </table>
     </body>

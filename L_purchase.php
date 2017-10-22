@@ -93,7 +93,7 @@ try {
                 $err_msg[] = $value['bike_name'] . '在庫が足りません。';
             }
             //公開されているのかどうか
-            if($value['status'] !== '0'){
+            if($value['status'] !== 0){
                 $err_msg[] = $value['bike_name'] . '購入できません。';
             }
             if (count($err_msg) === 0) {
@@ -103,7 +103,6 @@ try {
                     SET stock = ?
                     WHERE bike_id = ?";
                     $new_stock = $value['stock'] - $value['amount'];
-                    var_dump($new_stock);
                     $stmt = $dbh->prepare($sql);
                     $stmt->bindValue(1,$new_stock,PDO::PARAM_INT);
                     $stmt->bindValue(2,$value['bike_id'],PDO::PARAM_INT);
@@ -111,8 +110,26 @@ try {
                 } catch (PDOException $e){
                     $err_msg[] = 'カートデータベースの上書き失敗';
                 }
+                
+                
+                 //購入履歴に追加
+                try{
+                    $sql = "INSERT INTO
+                        bike_histry
+                        (user_id, bike_id, amount)
+                    VALUES
+                        (?,?,?)";
+                    $stmt = $dbh->prepare($sql);
+                    $stmt->bindValue(1,$customer_id,PDO::PARAM_INT);
+                    $stmt->bindValue(2,$value[bike_id],PDO::PARAM_INT);
+                    $stmt->bindValue(3,$value[amount],PDO::PARAM_INT);
+                    $stmt->execute();
+                } catch (PDOException $e){
+                    $err_msg[] = '履歴に追加出来ませんでした';
+                }
             }
         }
+        
         //ログインユーザーのカートの削除
         try{
             $sql = "DELETE FROM
@@ -124,10 +141,11 @@ try {
         } catch (PDOException $e){
             $err_msg[] = 'カートの削除が出来ませんでした';
         }
+        
     } catch (PDOException $e) {
         $err_msg[] = '購入処理に失敗';
     }    
-        
+    
     if(count($err_msg) === 0){
         $dbh->commit();
         $msg[] = 'データ追加完了トランザクション';
@@ -212,11 +230,11 @@ function h($str){
             <div class="one">
                 <div class="img_left"><img src="<?php print h($img_dir . $value['img']); ?>" width="200" height="200"></div>
                 <div class="img_right">
-                <p><?php print h($value['bike_name']); ?></p>
-                <p><?php print h($value['brand']); ?></p>
-                <p><?php print h($value['price']); ?></p>
-                <p><?php print h($value['chara']); ?></p>
-                <p><?php print h($value['amount']); ?>個</p>
+                <p>モデル名：<?php print h($value['bike_name']); ?></p>
+                <p>ブランド名：<?php print h($value['brand']); ?></p>
+                <p>価格：<?php print h($value['price']); ?></p>
+                <p>キャラクター：<?php print h($value['chara']); ?></p>
+                <p>数量：<?php print h($value['amount']); ?>個</p>
                 </div>
             </div>
             <?php $total_purchase += ($value['price'] * $value['amount']); ?>
